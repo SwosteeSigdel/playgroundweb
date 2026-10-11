@@ -1,0 +1,557 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Weekend Automator Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout concept: a blue workbench. Each tool is a before/after pair of paper cards with hard ink shadows, like the poster. */
+:root {
+  --ink: #14122B;
+  --ink-deep: #0B0A1C;
+  --paper: #FFF3D6;
+  --paper-light: #FFFAEB;
+  --red: #D61F26;
+  --blue: #1E3BFF;
+  --yellow: #FFE14D;
+  --on-blue: #FFFFFF;
+  --on-blue-soft: #DCE1FF;
+  --ok: #0F7A3B;
+  --display: 'Archivo Black', 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+  --body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--blue);
+  color: var(--on-blue);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-inline: clamp(16px, 4vw, 40px);
+  padding-block: 32px 64px;
+}
+.wrap { max-width: 1120px; margin-inline: auto; display: flex; flex-direction: column; gap: 28px; }
+.kicker { font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; background: var(--ink); color: var(--yellow); display: inline-block; padding: 6px 12px; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(2.1rem, 6.5vw, 4rem); line-height: 1; letter-spacing: -.01em; text-transform: uppercase; text-shadow: 4px 4px 0 var(--ink); margin: 14px 0 12px; text-wrap: balance; }
+.lede { max-width: 62ch; color: var(--on-blue-soft); font-size: 1.05rem; margin: 0; }
+.tabs { display: flex; flex-wrap: wrap; gap: 12px; }
+.tab { font-family: var(--display); font-size: 1rem; letter-spacing: .01em; text-transform: uppercase; background: var(--ink); color: var(--paper); border: 3px solid var(--ink); padding: 12px 18px; cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--yellow); color: var(--ink); box-shadow: 6px 6px 0 var(--ink); transform: translate(-2px, -2px); }
+.tab:focus-visible, .btn:focus-visible, textarea:focus-visible, input:focus-visible + .switch-ui { outline: 3px solid var(--on-blue); outline-offset: 3px; }
+.panel { display: flex; flex-direction: column; gap: 20px; }
+.panel[hidden] { display: none; }
+h2 { font-family: var(--display); font-weight: 400; font-size: clamp(1.4rem, 3.4vw, 2rem); text-transform: uppercase; margin: 0; text-shadow: 3px 3px 0 var(--ink); }
+.panel-lede { margin: 0; color: var(--on-blue-soft); max-width: 70ch; }
+.bench { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 28px; align-items: start; }
+.card { position: relative; min-width: 0; background: var(--paper); color: var(--ink); border: 4px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); padding: 44px 18px 18px; display: flex; flex-direction: column; gap: 14px; }
+.tag { position: absolute; top: -4px; left: -4px; font-family: var(--mono); font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; padding: 6px 12px; color: #fff; }
+.tag.before { background: var(--red); }
+.tag.after { background: var(--blue); }
+label.field { font-weight: 700; font-size: 14px; }
+.hint { font-size: 14px; margin: 0; color: #3A3760; }
+textarea { width: 100%; min-height: 230px; resize: vertical; background: var(--paper-light); color: var(--ink); border: 3px solid var(--ink); border-radius: 0; padding: 12px; font-family: var(--mono); font-size: 13.5px; line-height: 1.55; white-space: pre; overflow: auto; }
+textarea.short { min-height: 150px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { font-family: var(--body); font-weight: 700; font-size: 14px; background: var(--yellow); color: var(--ink); border: 3px solid var(--ink); padding: 8px 14px; cursor: pointer; }
+.btn:hover { box-shadow: 4px 4px 0 var(--ink); transform: translate(-2px, -2px); }
+.btn.quiet { background: var(--paper-light); }
+.stats { display: flex; flex-wrap: wrap; gap: 10px; }
+.stat { display: inline-flex; align-items: baseline; gap: 8px; border: 3px solid var(--ink); background: var(--paper-light); padding: 4px 10px; font-size: 13px; font-weight: 700; }
+.stat b { font-family: var(--display); font-weight: 400; font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+.stat.warn { background: var(--yellow); }
+.scroll { overflow-x: auto; border: 3px solid var(--ink); }
+table { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: 13px; }
+th { background: var(--ink); color: var(--paper); text-align: left; padding: 6px 10px; white-space: nowrap; font-weight: 700; }
+td { padding: 6px 10px; border-top: 1px solid var(--ink); white-space: nowrap; }
+td.empty { color: #7A1216; font-style: italic; }
+mark { background: var(--yellow); color: var(--ink); padding: 0 2px; }
+.legend { font-size: 13px; margin: 0; }
+.list { margin: 0; padding-left: 1.1em; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.list code, p code { font-family: var(--mono); font-size: 13px; background: var(--paper-light); border: 1px solid var(--ink); padding: 0 4px; }
+.sub { font-family: var(--mono); font-weight: 700; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; margin: 4px 0 0; }
+.term { margin: 0; background: var(--ink-deep); color: var(--paper); border: 3px solid var(--ink); padding: 14px; font-family: var(--mono); font-size: 13px; line-height: 1.6; overflow: auto; max-height: 380px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ill { display: block; width: 100%; max-width: 460px; height: auto; background: #FFF3D6; border: 3px solid #14122B; box-shadow: 6px 6px 0 #14122B; }
+.ill .ink { stroke: #14122B; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.ill text { font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-weight: 700; font-size: 10px; fill: #14122B; }
+.ill .cap { fill: #14122B; font-size: 11px; }
+.term .p { color: var(--yellow); }
+.term .dim { color: #A9A6C9; }
+.folders { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.folder { background: var(--yellow); border: 3px solid var(--ink); padding: 10px 12px; min-width: 0; }
+.folder h4 { font-family: var(--display); font-weight: 400; font-size: 1rem; margin: 0 0 6px; text-transform: uppercase; }
+.folder ul { list-style: none; margin: 0; padding: 0; font-family: var(--mono); font-size: 12.5px; display: flex; flex-direction: column; gap: 2px; overflow-wrap: anywhere; }
+.folder li.old { opacity: .65; }
+.switch { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; cursor: pointer; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch-ui { width: 46px; height: 26px; border: 3px solid var(--ink); background: var(--paper-light); position: relative; flex: none; }
+.switch-ui::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: var(--ink); transition: transform .15s; }
+.switch input:checked + .switch-ui { background: var(--yellow); }
+.switch input:checked + .switch-ui::after { transform: translateX(20px); }
+.error { background: var(--red); color: #fff; border: 3px solid var(--ink); padding: 12px 14px; font-weight: 700; }
+.error code { font-family: var(--mono); }
+.draft { border: 3px solid var(--ink); background: var(--paper-light); }
+.draft-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: var(--ink); color: var(--paper); padding: 6px 10px; font-family: var(--mono); font-size: 12.5px; }
+.draft pre { margin: 0; padding: 12px; font-family: var(--mono); font-size: 13px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.draft .btn { padding: 3px 10px; font-size: 12px; border-width: 2px; }
+.foot { border-top: 4px solid var(--ink); padding-top: 18px; color: var(--on-blue-soft); font-size: 14px; max-width: 78ch; }
+.foot p { margin: 0 0 8px; }
+details { font-size: 14px; }
+summary { cursor: pointer; font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .switch-ui::after, .btn, .tab { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="kicker">Try it now. No install.</span>
+    <h1>Weekend Automator Playground</h1>
+    <p class="lede">Three of the five tools, running right here. Change the left side and watch the right side react. The real tools are Python scripts that run on your own computer. This page imitates them so you can see what they do.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Tools">
+    <button class="tab" role="tab" id="tab-cleaner" aria-controls="panel-cleaner" aria-selected="true" type="button">Spreadsheet Cleaner</button>
+    <button class="tab" role="tab" id="tab-tidier" aria-controls="panel-tidier" aria-selected="false" tabindex="-1" type="button">Folder Tidier</button>
+    <button class="tab" role="tab" id="tab-emails" aria-controls="panel-emails" aria-selected="false" tabindex="-1" type="button">Email Drafts</button>
+  </div>
+
+  <!-- CLEANER -->
+  <section class="panel" id="panel-cleaner" role="tabpanel" aria-labelledby="tab-cleaner">
+    <h2>The Spreadsheet Cleaner</h2>
+    <p class="panel-lede">Paste any contacts CSV below, with column headings in the first row. Edit a cell, delete a row, or add a messy one and the clean version updates instantly.</p>
+    <svg class="ill" viewBox="0 0 320 150" role="img" aria-label="A messy spreadsheet goes in, a clean one comes out">
+    <g transform="rotate(-6 60 80)"><rect class="ink" x="25" y="25" width="75" height="100" fill="#FFFAEB"/>
+    <path class="ink" d="M33 42h20M60 42h30M33 58h38M78 58h12M33 74h14M55 74h35M33 90h30M70 90h20M33 106h22" fill="none" stroke-width="2.5"/>
+    <path d="M30 52l65 0" stroke="#D61F26" stroke-width="3" stroke-linecap="round"/><path d="M36 98l50-8" stroke="#D61F26" stroke-width="3" stroke-linecap="round"/>
+    <text x="60" y="20" text-anchor="middle" class="cap">JANE  doe</text></g>
+    <path class="ink" d="M118 78h56m-14-14 14 14-14 14" fill="none"/>
+    <rect class="ink" x="136" y="28" width="46" height="26" fill="#FFE14D"/><text x="159" y="45" text-anchor="middle">PYTHON</text>
+    <rect class="ink" x="205" y="25" width="85" height="100" fill="#FFFAEB"/>
+    <path class="ink" d="M215 42h25M248 42h32M215 62h25M248 62h32M215 82h25M248 82h32M215 102h25M248 102h32" fill="none" stroke-width="2.5"/>
+    <circle class="ink" cx="278" cy="30" r="14" fill="#2DB55D"/><path d="M271 30l5 5 9-10" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="247" y="142" text-anchor="middle" class="cap">Jane Doe</text></svg>
+    <div class="bench">
+      <div class="card">
+        <span class="tag before">Before</span>
+        <label class="field" for="csvIn">Your messy CSV</label>
+        <textarea id="csvIn" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+        <div class="row">
+          <button class="btn" id="addRow" type="button">Add a messy row</button>
+          <button class="btn quiet" id="resetCsv" type="button">Reset</button>
+        </div>
+      </div>
+      <div class="card">
+        <span class="tag after">After</span>
+        <div class="stats" id="csvStats" aria-live="polite"></div>
+        <div id="csvOut"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIDIER -->
+  <section class="panel" id="panel-tidier" role="tabpanel" aria-labelledby="tab-tidier" hidden>
+    <h2>The Folder Tidier</h2>
+    <p class="panel-lede">List the files in a messy folder, one per line. The tidier previews what it would do. Switch on <code>--go</code> to see the files actually move.</p>
+    <svg class="ill" viewBox="0 0 320 150" role="img" aria-label="Scattered files fly into labelled folders">
+    <g class="ink"><rect x="14" y="30" width="32" height="40" fill="#FFF3D6" transform="rotate(-14 30 50)"/><rect x="48" y="62" width="32" height="40" fill="#FFE14D" transform="rotate(10 64 82)"/><rect x="20" y="88" width="32" height="40" fill="#DCE1FF" transform="rotate(-4 36 108)"/><rect x="72" y="22" width="32" height="40" fill="#FFF3D6" transform="rotate(18 88 42)"/></g>
+    <text x="14" y="146">.jpg .pdf .xlsx .exe</text>
+    <path class="ink" d="M118 80h40m-12-12 12 12-12 12" fill="none"/>
+    <g class="ink"><path d="M178 30h26l6 8h38v34h-70z" fill="#FFE14D"/><path d="M178 84h26l6 8h38v34h-70z" fill="#FFF3D6"/><path d="M262 30h20l5 7h28v28h-53z" fill="#FFF3D6" transform="translate(0 0)"/></g>
+    <text x="190" y="62">Images</text><text x="186" y="116">Documents</text><text x="266" y="55">Other</text>
+    <text x="245" y="144" text-anchor="middle" class="cap">sorted. nothing lost.</text></svg>
+    <div class="bench">
+      <div class="card">
+        <span class="tag before">Before</span>
+        <label class="field" for="filesIn">Files in the messy folder</label>
+        <textarea id="filesIn" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+        <label class="switch"><input type="checkbox" id="oldReport" checked><span class="switch-ui" aria-hidden="true"></span>Documents already has an old report.pdf</label>
+        <label class="switch"><input type="checkbox" id="goFlag"><span class="switch-ui" aria-hidden="true"></span>Add <code>--go</code> (really move the files)</label>
+        <div class="row">
+          <button class="btn" id="addFile" type="button">Add a file</button>
+          <button class="btn quiet" id="resetFiles" type="button">Reset</button>
+        </div>
+      </div>
+      <div class="card">
+        <span class="tag after">After</span>
+        <div id="tidyOut"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMAILS -->
+  <section class="panel" id="panel-emails" role="tabpanel" aria-labelledby="tab-emails" hidden>
+    <h2>The Email Draft Machine</h2>
+    <p class="panel-lede">Write the email once with <code>{blanks}</code>. The column headings in your spreadsheet fill them in, one draft per row. Nothing is sent anywhere.</p>
+    <svg class="ill" viewBox="0 0 320 150" role="img" aria-label="One email template becomes three personal drafts">
+    <g class="ink"><rect x="14" y="48" width="86" height="58" fill="#FFF3D6"/><path d="M14 48l43 32 43-32" fill="none"/></g>
+    <text x="57" y="124" text-anchor="middle">Hi {name},</text>
+    <path class="ink" d="M112 77h36m-12-12 12 12-12 12" fill="none"/>
+    <g class="ink"><rect x="165" y="18" width="70" height="38" fill="#FFFAEB"/><path d="M165 18l35 24 35-24" fill="none"/>
+    <rect x="176" y="58" width="70" height="38" fill="#FFE14D"/><path d="M176 58l35 24 35-24" fill="none"/>
+    <rect x="187" y="98" width="70" height="38" fill="#DCE1FF"/><path d="M187 98l35 24 35-24" fill="none"/></g>
+    <text x="265" y="42">Dana</text><text x="276" y="82">Marcus</text><text x="267" y="122">Lena</text></svg>
+    <div class="bench">
+      <div class="card">
+        <span class="tag before">Before</span>
+        <label class="field" for="tplIn">The template</label>
+        <textarea id="tplIn" spellcheck="false" autocomplete="off"></textarea>
+        <label class="field" for="peopleIn">The spreadsheet (CSV)</label>
+        <textarea id="peopleIn" class="short" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+        <p class="sub">Try to break it</p>
+        <div class="row">
+          <button class="btn" id="bAdd" type="button">Add a person</button>
+          <button class="btn" id="bDup" type="button">Repeat a name</button>
+          <button class="btn" id="bPhone" type="button">Use {phone}</button>
+          <button class="btn" id="bBrace" type="button">Add a stray {</button>
+          <button class="btn quiet" id="resetEmails" type="button">Reset</button>
+        </div>
+      </div>
+      <div class="card">
+        <span class="tag after">After</span>
+        <div id="mailOut" style="display:flex;flex-direction:column;gap:14px"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>These demos copy the logic of three of the Python scripts so you can play with it. The scripts themselves run on your computer, read real files, and write real files.</p>
+    <p>Everything you type on this page stays in your browser.</p>
+  </footer>
+</div>
+
+<script>
+/* LOGIC START (no page code in here, so it can be tested on its own) */
+function parseCSV(text) {
+  text = text.replace(/^﻿/, "");
+  const rows = []; let row = [], field = "", inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; }
+      else field += c;
+    } else if (c === '"') inQ = true;
+    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field); field = ""; rows.push(row); row = [];
+    } else field += c;
+  }
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => !(r.length === 1 && r[0] === ""));
+}
+function toRecords(table) {
+  if (!table.length) return { headers: [], rawHeaders: [], records: [] };
+  const rawHeaders = table[0];
+  const records = table.slice(1).map(cells => {
+    const rec = {};
+    rawHeaders.forEach((h, i) => { rec[h] = i < cells.length ? cells[i] : ""; });
+    return rec;
+  });
+  return { rawHeaders, records };
+}
+const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+function cleanHeader(h) { return h.trim().toLowerCase().replace(/\s+/g, "_"); }
+function pyTitle(s) { return s.toLowerCase().replace(/\p{L}+/gu, w => w[0].toUpperCase() + w.slice(1)); }
+function cleanName(v) { return pyTitle(v.trim().split(/\s+/).filter(Boolean).join(" ")); }
+function cleanPhone(v) { return v.replace(/\D/g, ""); }
+function cleanCSV(text) {
+  const table = parseCSV(text);
+  if (!table.length) return { empty: true };
+  const rawHeaders = table[0];
+  const headers = rawHeaders.map(cleanHeader);
+  const seen = new Set(); const cleaned = [], removed = [], review = [];
+  let total = 0;
+  for (const cells of table.slice(1)) {
+    total++;
+    const raw = {}, vals = {}, changed = {};
+    headers.forEach((h, i) => {
+      const rv = i < cells.length ? cells[i] : "";
+      raw[h] = rv;
+      let v = rv.trim();
+      if (h === "name" || h === "full_name") v = cleanName(v);
+      else if (h === "email") v = v.toLowerCase();
+      else if (h === "phone") v = cleanPhone(v);
+      vals[h] = v; changed[h] = v !== rv;
+    });
+    const sig = headers.map(h => vals[h]).join("\u0000");
+    if (seen.has(sig)) { removed.push(vals); continue; }
+    seen.add(sig);
+    cleaned.push({ vals, changed });
+    if (headers.includes("email")) {
+      const e = vals.email || "";
+      if (!e) review.push({ vals, issue: "missing email" });
+      else if (!EMAIL_PATTERN.test(e)) review.push({ vals, issue: "email looks invalid" });
+    }
+  }
+  const headerChanges = rawHeaders.map((h, i) => [h, headers[i]]).filter(([a, b]) => a !== b);
+  return { empty: false, headers, headerChanges, cleaned, removed, review, total };
+}
+const CATEGORIES = {
+  Images: [".jpg", ".jpeg", ".png", ".gif", ".webp"],
+  Documents: [".pdf", ".doc", ".docx", ".txt", ".md"],
+  Spreadsheets: [".csv", ".xls", ".xlsx"],
+  Archives: [".zip", ".rar", ".7z"],
+  Installers: [".exe", ".dmg", ".msi"]
+};
+function suffixRaw(name) { const i = name.lastIndexOf("."); return (i <= 0 || i === name.length - 1) ? "" : name.slice(i); }
+function categoryFor(name) {
+  const ext = suffixRaw(name).toLowerCase();
+  for (const [folder, exts] of Object.entries(CATEGORIES)) if (exts.includes(ext)) return folder;
+  return "Other";
+}
+function uniqueName(folder, name, existing) {
+  if (!existing.has(folder + "/" + name)) return name;
+  const suf = suffixRaw(name), stem = name.slice(0, name.length - suf.length);
+  let n = 1;
+  while (existing.has(folder + "/" + stem + " (" + n + ")" + suf)) n++;
+  return stem + " (" + n + ")" + suf;
+}
+function planTidy(text, existing) {
+  const names = [...new Set(text.split(/\r?\n/).map(s => s.trim()).filter(Boolean))].sort();
+  const hidden = names.filter(n => n.startsWith("."));
+  const moves = names.filter(n => !n.startsWith(".")).map(n => {
+    const cat = categoryFor(n);
+    return { name: n, cat, dest: uniqueName(cat, n, existing) };
+  });
+  return { moves, hidden };
+}
+const STRAY = "Your template has a stray { or } in it. Placeholders look like {name}. Stopping.";
+function formatTemplate(tpl, row) {
+  let out = "", i = 0;
+  while (i < tpl.length) {
+    const c = tpl[i];
+    if (c === "{") {
+      if (tpl[i + 1] === "{") { out += "{"; i += 2; continue; }
+      const j = tpl.indexOf("}", i + 1);
+      if (j === -1) return { ok: false, msg: STRAY };
+      const key = tpl.slice(i + 1, j);
+      if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) return { ok: false, msg: STRAY };
+      if (!Object.prototype.hasOwnProperty.call(row, key)) return { ok: false, msg: "Template uses '" + key + "' but the CSV has no such column. Stopping." };
+      out += row[key]; i = j + 1; continue;
+    }
+    if (c === "}") { if (tpl[i + 1] === "}") { out += "}"; i += 2; continue; } return { ok: false, msg: STRAY }; }
+    out += c; i++;
+  }
+  return { ok: true, text: out };
+}
+function safeFilename(t) { return t.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, ""); }
+function makeDrafts(tpl, csvText) {
+  const { records } = toRecords(parseCSV(csvText));
+  const drafts = []; const used = new Set();
+  for (const row of records) {
+    const f = formatTemplate(tpl, row);
+    if (!f.ok) return { error: f.msg };
+    const base = safeFilename(row.name || ("draft_" + (drafts.length + 1)));
+    let filename = base + ".txt", n = 2;
+    while (used.has(filename)) { filename = base + "_" + n + ".txt"; n++; }
+    used.add(filename);
+    drafts.push({ filename, text: f.text });
+  }
+  return { drafts };
+}
+/* LOGIC END */
+</script>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+  /* sample data: the same files that ship in the download */
+  var SAMPLE_CSV = [
+    "Full Name , Email,Phone ,Company",
+    "  jANE   doe ,JANE.DOE@Example.com,(555) 123-4567,Acme Co",
+    "JOHN SMITH,john.smith@example.com,555.987.6543,Globex",
+    "maria garcia,,555 222 3333,Initech",
+    "jane doe,jane.doe@example.com,555-123-4567,Acme Co",
+    "Ali  Khan,ali.khan@example,555-444-0000,Umbrella LLC",
+    " sam lee ,sam.lee@example.com,(555)777-8888,Hooli",
+    "john smith,JOHN.SMITH@EXAMPLE.COM,555-987-6543,Globex",
+    "Priya Nair,priya.nair@example.com,555 010 0101,Stark Ltd",
+    "Tom Brown,tom.brown@example.com,555-300-4000,Wayne Corp",
+    "tom brown,tom.brown@example.com,555-300-9999,Wayne Corp"
+  ].join("\n");
+  var MESSY_ROWS = [
+    "  PRIYA   nair ,PRIYA.NAIR@EXAMPLE.COM,(555) 010-0101,Stark Ltd",
+    "mcdonald fraser,,555 888 9999,Dunder Co",
+    "O'BRIEN mary,mary.obrien@example,555-123-0000,Initrode",
+    "lee   CHEN,lee.chen@example.com,555 777 1212,Hooli"
+  ];
+  var SAMPLE_FILES = ["vacation_photo.jpg", "screenshot_001.png", "logo_final_v2.png", "resume_2026.pdf", "meeting_notes.txt", "contract_draft.docx", "budget.xlsx", "customers.csv", "backup_oct.zip", "setup_app.exe", "mystery_file.xyz", "report.pdf", ".DS_Store"].join("\n");
+  var EXTRA_FILES = ["Invoice_March.PDF", "holiday.heic", "slides_final.pptx", "photo.JPG", "data_2026.xlsx"];
+  var SAMPLE_TPL = [
+    "Subject: Friendly reminder: invoice {invoice_no}",
+    "",
+    "Hi {name},",
+    "",
+    "Hope you're doing well! This is a quick reminder that invoice {invoice_no}",
+    "for $" + "{amount} was due on {due_date}.",
+    "",
+    "If you've already paid, thank you, and please ignore this note. If not, could",
+    "you let me know when I can expect payment?",
+    "",
+    "Thanks so much,",
+    "Alex"
+  ].join("\n");
+  var SAMPLE_PEOPLE = [
+    "name,email,invoice_no,amount,due_date",
+    "Dana Whitfield,dana@example.com,INV-1042,240.00,2026-09-15",
+    "Marcus Obi,marcus@example.com,INV-1047,89.50,2026-09-20",
+    "Lena Fischer,lena@example.com,INV-1051,1200.00,2026-09-28"
+  ].join("\n");
+
+  /* tabs */
+  var TABS = ["cleaner", "tidier", "emails"];
+  function showTab(name, focus) {
+    TABS.forEach(function (t) {
+      var on = t === name;
+      $("tab-" + t).setAttribute("aria-selected", on ? "true" : "false");
+      $("tab-" + t).tabIndex = on ? 0 : -1;
+      $("panel-" + t).hidden = !on;
+    });
+    if (focus) $("tab-" + name).focus();
+    try { history.replaceState(null, "", "#" + name); } catch (e) {}
+  }
+  TABS.forEach(function (t, i) {
+    $("tab-" + t).addEventListener("click", function () { showTab(t); });
+    $("tab-" + t).addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") { e.preventDefault(); showTab(TABS[(i + 1) % 3], true); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); showTab(TABS[(i + 2) % 3], true); }
+    });
+  });
+
+  /* cleaner */
+  var addIdx = 0;
+  function renderCleaner() {
+    var r = cleanCSV($("csvIn").value);
+    var stats = $("csvStats"), out = $("csvOut");
+    if (r.empty) { stats.innerHTML = ""; out.innerHTML = '<p class="hint">Paste a CSV on the left. The first row should be the column headings.</p>'; return; }
+    stats.innerHTML =
+      '<span class="stat">Rows in <b>' + r.total + '</b></span>' +
+      '<span class="stat">Duplicates removed <b>' + r.removed.length + '</b></span>' +
+      '<span class="stat">Rows out <b>' + r.cleaned.length + '</b></span>' +
+      '<span class="stat' + (r.review.length ? " warn" : "") + '">Flagged <b>' + r.review.length + '</b></span>';
+    var h = '';
+    if (r.headerChanges.length) {
+      h += '<p class="legend">Headings tidied: ' + r.headerChanges.map(function (p) { return "<code>" + esc(JSON.stringify(p[0])) + "</code> to <code>" + esc(p[1]) + "</code>"; }).join(", ") + '</p>';
+    }
+    h += '<div class="scroll"><table><thead><tr>' + r.headers.map(function (x) { return "<th>" + esc(x) + "</th>"; }).join("") + '</tr></thead><tbody>';
+    r.cleaned.forEach(function (row) {
+      h += "<tr>" + r.headers.map(function (x) {
+        var v = row.vals[x];
+        if (v === "") return '<td class="empty">(blank)</td>';
+        return "<td>" + (row.changed[x] ? "<mark>" + esc(v) + "</mark>" : esc(v)) + "</td>";
+      }).join("") + "</tr>";
+    });
+    h += "</tbody></table></div>";
+    h += '<p class="legend"><mark>Highlighted</mark> cells were changed by the cleaner.</p>';
+    if (r.removed.length) {
+      h += '<p class="sub">Exact duplicates removed</p><ul class="list">' + r.removed.map(function (v) { return "<li>" + esc(r.headers.map(function (x) { return v[x]; }).join(" / ")) + "</li>"; }).join("") + "</ul>";
+    }
+    if (r.review.length) {
+      h += '<p class="sub">Flagged for a human look</p><ul class="list">' + r.review.map(function (x) {
+        var who = x.vals.full_name || x.vals.name || "(no name)";
+        return "<li><b>" + esc(who) + "</b>: " + esc(x.issue) + "</li>";
+      }).join("") + "</ul>";
+    }
+    h += '<details><summary>What it does, and what it does not</summary><ul class="list">' +
+      "<li>Trims extra spaces, puts names in Title Case, lowercases emails, keeps only the digits of phone numbers.</li>" +
+      "<li>Removes only <b>exact</b> duplicates, once the cleaning is done. Similar rows, like the two Tom Browns with different phones, are kept for a human to decide.</li>" +
+      "<li>Flags missing or odd-looking emails. It does not check that an address really exists.</li>" +
+      "<li>Names like McDonald become Mcdonald, so give unusual names a look.</li></ul></details>";
+    out.innerHTML = h;
+  }
+  $("csvIn").addEventListener("input", renderCleaner);
+  $("addRow").addEventListener("click", function () {
+    var v = $("csvIn").value.replace(/\s+$/, "");
+    $("csvIn").value = v + "\n" + MESSY_ROWS[addIdx % MESSY_ROWS.length];
+    addIdx++; renderCleaner();
+  });
+  $("resetCsv").addEventListener("click", function () { $("csvIn").value = SAMPLE_CSV; addIdx = 0; renderCleaner(); });
+
+  /* tidier */
+  var fileIdx = 0;
+  function renderTidier() {
+    var existing = new Set($("oldReport").checked ? ["Documents/report.pdf"] : []);
+    var plan = planTidy($("filesIn").value, existing);
+    var go = $("goFlag").checked;
+    var out = $("tidyOut");
+    if (!plan.moves.length && !plan.hidden.length) { out.innerHTML = '<p class="hint">No files found. Nothing to do.</p>'; return; }
+    var lines = [];
+    lines.push('<span class="p">$</span> python 01_organize_folder.py messy_downloads' + (go ? " --go" : ""));
+    lines.push(go ? "MOVING FILES" : "PREVIEW ONLY (nothing will be moved)");
+    plan.moves.forEach(function (m) { lines.push("  " + esc(m.name) + "  ->  " + esc(m.cat) + "/" + esc(m.dest)); });
+    lines.push("");
+    var counts = {};
+    plan.moves.forEach(function (m) { counts[m.cat] = (counts[m.cat] || 0) + 1; });
+    Object.keys(counts).sort().forEach(function (k) { lines.push("  " + k + ": " + counts[k] + " file(s)"); });
+    if (!go) { lines.push(""); lines.push("Looks right? Run again with --go to do it for real."); }
+    var h = '<pre class="term">' + lines.join("\n") + "</pre>";
+    if (plan.hidden.length) h += '<p class="legend">Left alone because they are hidden: <code>' + plan.hidden.map(esc).join("</code>, <code>") + "</code></p>";
+    var renamed = plan.moves.filter(function (m) { return m.dest !== m.name; });
+    if (renamed.length) h += '<p class="legend">' + renamed.map(function (m) { return "<code>" + esc(m.name) + "</code> would overwrite a file that is already there, so it is saved as <code>" + esc(m.dest) + "</code>."; }).join(" ") + "</p>";
+    if (go) {
+      var groups = {};
+      plan.moves.forEach(function (m) { (groups[m.cat] = groups[m.cat] || []).push(m.dest); });
+      if ($("oldReport").checked) (groups.Documents = groups.Documents || []).unshift("report.pdf (already there)");
+      h += '<p class="sub">After the move</p><div class="folders">' + Object.keys(groups).sort().map(function (k) {
+        return '<div class="folder"><h4>' + esc(k) + "</h4><ul>" + groups[k].map(function (n) { return "<li" + (n.indexOf("(already there)") > -1 ? ' class="old"' : "") + ">" + esc(n) + "</li>"; }).join("") + "</ul></div>";
+      }).join("") + "</div>";
+    }
+    out.innerHTML = h;
+  }
+  $("filesIn").addEventListener("input", renderTidier);
+  $("oldReport").addEventListener("change", renderTidier);
+  $("goFlag").addEventListener("change", renderTidier);
+  $("addFile").addEventListener("click", function () {
+    $("filesIn").value = $("filesIn").value.replace(/\s+$/, "") + "\n" + EXTRA_FILES[fileIdx % EXTRA_FILES.length];
+    fileIdx++; renderTidier();
+  });
+  $("resetFiles").addEventListener("click", function () { $("filesIn").value = SAMPLE_FILES; $("oldReport").checked = true; $("goFlag").checked = false; fileIdx = 0; renderTidier(); });
+
+  /* emails */
+  function copyText(text, btn) {
+    function done(ok) { var old = btn.textContent; btn.textContent = ok ? "Copied" : "Select and copy"; setTimeout(function () { btn.textContent = old; }, 1400); }
+    try {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { fallback(); });
+    } catch (e) { fallback(); }
+    function fallback() {
+      var pre = btn.closest(".draft").querySelector("pre");
+      var range = document.createRange(); range.selectNodeContents(pre);
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range); done(false);
+    }
+  }
+  function renderEmails() {
+    var r = makeDrafts($("tplIn").value, $("peopleIn").value);
+    var out = $("mailOut");
+    if (r.error) { out.innerHTML = '<div class="error">' + esc(r.error) + "<br><span style=\"font-weight:400\">No drafts were made. In the real script this is the message you would see.</span></div>"; return; }
+    if (!r.drafts.length) { out.innerHTML = '<p class="hint">Add a heading row and at least one person.</p>'; return; }
+    out.innerHTML = '<p class="legend"><b>' + r.drafts.length + "</b> draft" + (r.drafts.length === 1 ? "" : "s") + " created. Nothing was sent.</p>" +
+      r.drafts.map(function (d, i) {
+        return '<div class="draft"><div class="draft-head"><span>' + esc(d.filename) + '</span><button class="btn quiet" type="button" data-i="' + i + '">Copy</button></div><pre>' + esc(d.text) + "</pre></div>";
+      }).join("");
+    Array.prototype.forEach.call(out.querySelectorAll("button[data-i]"), function (b) {
+      b.addEventListener("click", function () { copyText(r.drafts[+b.getAttribute("data-i")].text, b); });
+    });
+  }
+  $("tplIn").addEventListener("input", renderEmails);
+  $("peopleIn").addEventListener("input", renderEmails);
+  function appendLine(id, line) { var el = $(id); el.value = el.value.replace(/\s+$/, "") + "\n" + line; }
+  $("bAdd").addEventListener("click", function () { appendLine("peopleIn", "Priya Nair,priya@example.com,INV-1060,310.00,2026-10-01"); renderEmails(); });
+  $("bDup").addEventListener("click", function () { appendLine("peopleIn", "Dana Whitfield,dana.b@example.com,INV-1077,55.00,2026-10-03"); renderEmails(); });
+  $("bPhone").addEventListener("click", function () { appendLine("tplIn", "Call me on {phone}."); renderEmails(); });
+  $("bBrace").addEventListener("click", function () { $("tplIn").value = $("tplIn").value.replace(/\s+$/, "") + " {oops"; renderEmails(); });
+  $("resetEmails").addEventListener("click", function () { $("tplIn").value = SAMPLE_TPL; $("peopleIn").value = SAMPLE_PEOPLE; renderEmails(); });
+
+  /* start in a realistic working state */
+  $("csvIn").value = SAMPLE_CSV;
+  $("filesIn").value = SAMPLE_FILES;
+  $("tplIn").value = SAMPLE_TPL;
+  $("peopleIn").value = SAMPLE_PEOPLE;
+  renderCleaner(); renderTidier(); renderEmails();
+  var h = (location.hash || "").replace(/^#(tab-)?/, "");
+  if (TABS.indexOf(h) > -1) showTab(h);
+  window.addEventListener("hashchange", function () { var x = (location.hash || "").replace(/^#(tab-)?/, ""); if (TABS.indexOf(x) > -1) showTab(x); });
+})();
+</script>
+
+</body></html>
