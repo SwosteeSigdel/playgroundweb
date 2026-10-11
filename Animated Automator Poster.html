@@ -1,0 +1,176 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Animated Automator Poster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* A single committed look: the poster, moving. Dark page so the poster is the only bright thing. */
+:root {
+  --ink: #14122B; --paper: #FFF3D6; --red: #D61F26; --blue: #1E3BFF; --yellow: #FFE14D;
+  --skin: #F2C9A5; --drop: #9FB0FF; --white: #FFFFFF; --muted: #A9A6C9;
+  --display: 'Archivo Black', 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+  --body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+body { background: var(--ink); color: var(--white); font-family: var(--body); }
+.page { padding-inline: 16px; padding-block: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.frame { width: min(100%, 640px); aspect-ratio: 3 / 4; position: relative; overflow: hidden; background: var(--blue); }
+.stage { width: 1080px; height: 1440px; position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: scale(var(--s, .5)); font-family: var(--display); color: var(--yellow); display: flex; flex-direction: column; }
+.top { height: 600px; box-sizing: border-box; background: var(--red); padding: 56px 72px 28px; display: flex; flex-direction: column; justify-content: space-between; }
+.bottom { flex: 1; box-sizing: border-box; background: var(--blue); padding: 36px 72px 56px; display: flex; flex-direction: column; justify-content: space-between; }
+.big { text-transform: uppercase; letter-spacing: -0.01em; text-shadow: 6px 6px 0 var(--ink); line-height: .98; }
+.big > div { display: block; }
+.top .big { font-size: 116px; }
+.bottom .big { font-size: 104px; }
+.chips { display: flex; flex-wrap: wrap; gap: 12px; font-family: var(--body); font-weight: 700; font-size: 28px; line-height: 1.2; color: var(--white); }
+.chips div { background: var(--ink); padding: 9px 18px; }
+.tag { font-family: var(--body); font-weight: 700; font-size: 30px; line-height: 1.25; color: var(--white); }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.btn { background: var(--yellow); color: var(--ink); border: 7px solid var(--ink); box-shadow: 9px 9px 0 var(--ink); box-sizing: border-box; padding: 16px 34px; font-size: 40px; line-height: 1.1; text-transform: uppercase; }
+.brand { font-size: 26px; line-height: 1.15; text-align: right; text-transform: uppercase; color: var(--yellow); }
+.veil { position: absolute; inset: 0; background: var(--ink); pointer-events: none; animation: veil 9.0s infinite both; }
+svg { display: block; }
+.c-paper { fill: var(--paper); } .c-ink { fill: var(--ink); } .c-blue { fill: var(--blue); } .c-red { fill: var(--red); }
+.c-skin { fill: var(--skin); } .c-yellow { fill: var(--yellow); } .c-drop { fill: var(--drop); }
+.s { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.s-ink { stroke: var(--ink); } .s-blue { stroke: var(--blue); } .s-red { stroke: var(--red); } .s-yellow { stroke: var(--yellow); } .s-paper { stroke: var(--paper); }
+.mono { font-family: var(--mono); font-weight: 700; font-size: 24px; fill: var(--red); }
+.note { color: var(--muted); font-size: 14px; max-width: 46ch; text-align: center; margin: 0; }
+
+/* idle motion */
+@keyframes shake { 0% { transform: translate(-3px, 0) rotate(-1.2deg); } 50% { transform: translate(3px, -2px) rotate(1.2deg); } 100% { transform: translate(-2px, 1px) rotate(-.8deg); } }
+.shake { transform-origin: 468px 200px; animation: shake .28s ease-in-out infinite alternate; }
+@keyframes sweat { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(46px); opacity: 0; } }
+.sweat { animation: sweat 1.1s ease-in infinite; } .sweat.b { animation-delay: .55s; }
+@keyframes float { from { transform: translateY(0) rotate(-6deg); } to { transform: translateY(-16px) rotate(6deg); } }
+.fl { animation: float 1.8s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+.fl.b { animation-duration: 2.3s; animation-delay: -.7s; } .fl.c { animation-duration: 1.5s; animation-delay: -1.1s; }
+@keyframes blink { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0; } }
+.blink { animation: blink .9s steps(1) infinite; }
+@keyframes bob { from { transform: translateY(0); } to { transform: translateY(-6px); } }
+.bob { animation: bob 2.2s ease-in-out infinite alternate; }
+@keyframes steam { 0% { transform: translateY(6px); opacity: 0; } 40% { opacity: 1; } 100% { transform: translateY(-14px); opacity: 0; } }
+.steam { animation: steam 1.8s ease-out infinite; } .steam.b { animation-delay: .9s; }
+@keyframes sun { from { transform: scale(1); } to { transform: scale(1.14); } }
+.sun { transform-origin: 800px 64px; animation: sun 2s ease-in-out infinite alternate; }
+@keyframes in-h1a{0%,3.89%{opacity:0;transform:translateX(-160px)}7.78%{opacity:1;transform:translateX(14px)}9.44%,100%{opacity:1;transform:none}}
+.in-h1a{animation:in-h1a 9.0s infinite both}
+@keyframes in-h1b{0%,8.89%{opacity:0;transform:translateX(-160px)}12.78%{opacity:1;transform:translateX(14px)}14.44%,100%{opacity:1;transform:none}}
+.in-h1b{animation:in-h1b 9.0s infinite both}
+@keyframes in-scene2{0%,35.56%{opacity:0;transform:translateY(18px)}40.22%{opacity:1;transform:translateY(-3px)}42.22%,100%{opacity:1;transform:none}}
+.in-scene2{animation:in-scene2 9.0s infinite both}
+@keyframes in-h2a{0%,41.11%{opacity:0;transform:translateX(-160px)}45.0%{opacity:1;transform:translateX(14px)}46.67%,100%{opacity:1;transform:none}}
+.in-h2a{animation:in-h2a 9.0s infinite both}
+@keyframes in-h2b{0%,46.11%{opacity:0;transform:translateX(-160px)}50.0%{opacity:1;transform:translateX(14px)}51.67%,100%{opacity:1;transform:none}}
+.in-h2b{animation:in-h2b 9.0s infinite both}
+@keyframes in-chip1{0%,53.33%{opacity:0;transform:scale(.5)}56.06%{opacity:1;transform:scale(1.1)}57.22%,100%{opacity:1;transform:none}}
+.in-chip1{animation:in-chip1 9.0s infinite both}
+@keyframes in-chip2{0%,56.67%{opacity:0;transform:scale(.5)}59.39%{opacity:1;transform:scale(1.1)}60.56%,100%{opacity:1;transform:none}}
+.in-chip2{animation:in-chip2 9.0s infinite both}
+@keyframes in-chip3{0%,60.0%{opacity:0;transform:scale(.5)}62.72%{opacity:1;transform:scale(1.1)}63.89%,100%{opacity:1;transform:none}}
+.in-chip3{animation:in-chip3 9.0s infinite both}
+@keyframes in-tag{0%,65.56%{opacity:0;transform:translateY(18px)}69.44%{opacity:1;transform:translateY(-3px)}71.11%,100%{opacity:1;transform:none}}
+.in-tag{animation:in-tag 9.0s infinite both}
+@keyframes in-brand{0%,73.33%{opacity:0;transform:translateY(18px)}77.22%{opacity:1;transform:translateY(-3px)}78.89%,100%{opacity:1;transform:none}}
+.in-brand{animation:in-brand 9.0s infinite both}
+@keyframes in-btn{0%,70.0%{opacity:0;transform:translateY(-90px)}73.89%{opacity:1;transform:translateY(10px)}75.56%{opacity:1;transform:none}81.11%{transform:scale(1)}83.33%{transform:scale(1.07)}85.56%{transform:scale(1)}90.0%{transform:scale(1)}92.22%{transform:scale(1.07)}94.44%,100%{opacity:1;transform:scale(1)}}
+.in-btn{animation:in-btn 9.0s infinite both}
+@keyframes draw{0%,42.22%{stroke-dashoffset:1}47.78%,100%{stroke-dashoffset:0}}
+.draw{stroke-dasharray:1;animation:draw 9.0s infinite both}
+@keyframes veil{0%{opacity:1}3%{opacity:0}93%{opacity:0}97%{opacity:1}100%{opacity:1}}
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } .veil { display: none; } .draw { stroke-dashoffset: 0; } }
+</style>
+
+<div class="page">
+  <div class="frame" id="frame" role="img" aria-label="Animated poster. A stressed man buried in paper under the words Stop doing it by hand, then a relaxed man under the words Let Python do it. Try it free.">
+    <div class="stage" id="stage">
+      <div class="top">
+        <div class="big">
+          <div class="in-h1a">Stop doing</div>
+          <div class="in-h1b">it by hand.</div>
+        </div>
+        <svg viewBox="0 0 936 260" width="936" height="260" aria-hidden="true">
+          <g class="fl"><rect class="c-paper" x="150" y="30" width="70" height="90" transform="rotate(-20 185 75)"/></g>
+          <g class="fl b"><rect class="c-paper" x="250" y="140" width="64" height="80" transform="rotate(15 282 180)"/></g>
+          <g class="fl c"><rect class="c-paper" x="690" y="20" width="70" height="90" transform="rotate(25 725 65)"/></g>
+          <g class="fl"><rect class="c-paper" x="790" y="120" width="64" height="80" transform="rotate(-12 822 160)"/></g>
+          <g class="fl b"><rect class="c-paper" x="590" y="6" width="60" height="76" transform="rotate(-30 620 44)"/></g>
+          <rect class="c-ink" x="250" y="186" width="436" height="16"/>
+          <rect class="c-ink" x="270" y="202" width="14" height="58"/>
+          <rect class="c-ink" x="652" y="202" width="14" height="58"/>
+          <g class="shake">
+            <rect class="c-blue" x="418" y="112" width="100" height="90" rx="18"/>
+            <path class="s s-blue" stroke-width="24" d="M426 130 L404 92 L432 64"/>
+            <path class="s s-blue" stroke-width="24" d="M510 130 L532 92 L504 64"/>
+            <circle class="c-skin" cx="468" cy="74" r="36"/>
+            <circle class="c-skin" cx="432" cy="64" r="15"/>
+            <circle class="c-skin" cx="504" cy="64" r="15"/>
+            <path class="s s-ink" stroke-width="4" d="M452 64 l10 10 M462 64 l-10 10 M474 64 l10 10 M484 64 l-10 10"/>
+            <path class="s s-ink" stroke-width="4" d="M450 94 q6 -8 12 0 t12 0 t12 0"/>
+            <g class="sweat"><path class="c-drop" transform="translate(412 36)" d="M0 -12 C8 -2 10 5 0 11 C-10 5 -8 -2 0 -12 Z"/></g>
+            <g class="sweat b"><path class="c-drop" transform="translate(526 30)" d="M0 -12 C8 -2 10 5 0 11 C-10 5 -8 -2 0 -12 Z"/></g>
+          </g>
+          <rect class="c-paper" x="278" y="170" width="112" height="16"/>
+          <rect class="c-paper" x="288" y="154" width="100" height="16" transform="rotate(-4 338 162)"/>
+          <rect class="c-paper" x="284" y="138" width="104" height="16" transform="rotate(5 336 146)"/>
+          <rect class="c-ink" x="560" y="176" width="116" height="10"/>
+          <rect class="c-paper" x="570" y="104" width="96" height="72" rx="4"/>
+          <text class="mono blink" x="580" y="152">#REF!</text>
+        </svg>
+      </div>
+      <div class="bottom">
+        <svg class="in-scene2" viewBox="0 0 936 260" width="842" height="234" aria-hidden="true">
+          <circle class="c-yellow sun" cx="800" cy="64" r="36"/>
+          <rect class="c-ink" x="250" y="186" width="436" height="16"/>
+          <rect class="c-ink" x="270" y="202" width="14" height="58"/>
+          <rect class="c-ink" x="652" y="202" width="14" height="58"/>
+          <g class="bob">
+            <rect class="c-red" x="418" y="112" width="100" height="90" rx="18"/>
+            <path class="s s-red" stroke-width="24" d="M428 130 L376 104 L440 70"/>
+            <path class="s s-red" stroke-width="24" d="M508 130 L560 104 L496 70"/>
+            <circle class="c-skin" cx="440" cy="70" r="15"/>
+            <circle class="c-skin" cx="496" cy="70" r="15"/>
+            <circle class="c-skin" cx="468" cy="78" r="36"/>
+            <path class="s s-ink" stroke-width="4" d="M450 74 q7 -9 14 0 M472 74 q7 -9 14 0"/>
+            <path class="s s-ink" stroke-width="4" d="M452 92 q16 14 32 0"/>
+          </g>
+          <rect class="c-ink" x="560" y="176" width="116" height="10"/>
+          <rect class="c-paper" x="570" y="104" width="96" height="72" rx="4"/>
+          <path class="s s-blue draw" pathLength="1" stroke-width="10" d="M590 142 l16 16 l38 -38"/>
+          <rect class="c-yellow" x="300" y="164" width="34" height="22" rx="3"/>
+          <path class="s s-yellow" stroke-width="5" d="M334 170 q16 0 16 10 q0 8 -16 8"/>
+          <g class="steam"><path class="s s-paper" stroke-width="4" d="M310 154 q-6 -8 0 -16"/></g>
+          <g class="steam b"><path class="s s-paper" stroke-width="4" d="M324 154 q-6 -8 0 -16"/></g>
+        </svg>
+        <div class="big">
+          <div class="in-h2a">Let Python</div>
+          <div class="in-h2b">do it.</div>
+        </div>
+        <div class="chips">
+          <div class="in-chip1">Clean spreadsheets</div>
+          <div class="in-chip2">Merge reports</div>
+          <div class="in-chip3">Draft emails</div>
+        </div>
+        <div class="tag in-tag">5 beginner scripts. 1 weekend. No coding experience.</div>
+        <div class="row">
+          <div class="btn in-btn">Try it free</div>
+          <div class="brand in-brand">The Weekend<br>Automator</div>
+        </div>
+      </div>
+      <div class="veil"></div>
+    </div>
+  </div>
+  <p class="note">The animated poster, looping. For posts and stories, record it or ask for the video file.</p>
+</div>
+<script>
+(function () {
+  var frame = document.getElementById("frame"), stage = document.getElementById("stage");
+  function fit() { stage.style.setProperty("--s", frame.clientWidth / 1080); }
+  fit();
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(frame); else window.addEventListener("resize", fit);
+})();
+</script>
+
+</body></html>
